@@ -48,6 +48,7 @@ public class ProductoController {
 		return "redirect:/productos"; //es una peticion al controlador productos
 	}
 	
+	//te reenvia a la ruta para editar el producto en funcion a su id
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable Integer id, Model model) {
 		Producto producto = new Producto();
@@ -65,12 +66,20 @@ public class ProductoController {
 		return "productos/edit";
 	}
 	
-	@PostMapping("update")
+	//Envia los datos del formulario edit, guarda los datos en la bd y redirige a la lista de productos
+	@PostMapping("/update")
 	public String update(Producto producto) {
 		productoService.update(producto);
 		return "redirect:/productos";
 	}
 	
+		//@PathVariable es de spring. Mapea el id en la url y la pasa en la variable que está continua (o sea, rellena el parametro id)
+
 	
-	//@PathVariable es de spring. Mapea el id en la url y pasarla en la variable que está continua (o sea, rellena el parametro id)
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable Integer id) {
+		productoService.delete(id);
+		return "redirect:/productos";
+	}
+
 }
