@@ -1,11 +1,14 @@
 package com.curso.ecommerce.controller;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -45,4 +48,29 @@ public class ProductoController {
 		return "redirect:/productos"; //es una peticion al controlador productos
 	}
 	
+	@GetMapping("/edit/{id}")
+	public String edit(@PathVariable Integer id, Model model) {
+		Producto producto = new Producto();
+		
+		//Llama al servicio para obtener el producto por su ID
+		Optional<Producto> optionalProducto=productoService.get(id);
+		
+		//este get es de la clase Optional, es para extraer el valor guardado y q se almacene en la variable producto
+		producto = optionalProducto.get(); 
+		
+		LOGGER.info("Producto buscado: {}", producto);
+		
+		//mandar el objeto a la vista html, el model es como un objeto request
+		model.addAttribute("producto", producto);
+		return "productos/edit";
+	}
+	
+	@PostMapping("update")
+	public String update(Producto producto) {
+		productoService.update(producto);
+		return "redirect:/productos";
+	}
+	
+	
+	//@PathVariable es de spring. Mapea el id en la url y pasarla en la variable que está continua (o sea, rellena el parametro id)
 }

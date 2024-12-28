@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.repository.ProductoRepository;
 
-@Service // recuerda q aca se usa "implements" porque se esta heredando de un Interface
+//El @Service hace que Spring identifique a la clase como un Bean, para que luego con Autowired se agreguen estas implementaciones al objeto especificado despues
+@Service 
+//recuerda q aca se usa "implements" porque se esta heredando de un Interface
 public class ProductoServiceImpl implements ProductoService{
 
-	@Autowired //se utiliza para realizar la inyección de dependencias automáticamente.
+	@Autowired //se   utiliza para realizar la inyección de dependencias automáticamente.
 	private ProductoRepository productoRepository;
 	
 	
