@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +19,13 @@ public class ProductoController {
 	
 	private final Logger LOGGER = LoggerFactory.getLogger(ProductoController.class);
 
-	@Autowired //el contenedor de spring se encargará de esta variable
+	@Autowired //el contenedor de spring se encargará de q esta variable este instanciada
 	private ProductoService productoService;
 	
 	@GetMapping("") //cadena vacia para que se mapee a "productos" 
-	public String show(){
+	public String show(Model model){ // El objeto Model envía datos del backend a la vista
+		
+		model.addAttribute("productos", productoService.findAll());
 		return "productos/show";
 	}
 	
