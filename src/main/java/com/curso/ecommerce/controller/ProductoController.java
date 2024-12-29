@@ -1,5 +1,6 @@
 package com.curso.ecommerce.controller;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -11,10 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
 import com.curso.ecommerce.service.ProductoService;
+import com.curso.ecommerce.service.UploadFileService;
 
 @Controller
 @RequestMapping("/productos")
@@ -24,6 +28,9 @@ public class ProductoController {
 
 	@Autowired //el contenedor de spring se encargará de q esta variable este instanciada
 	private ProductoService productoService;
+	
+	@Autowired
+	private UploadFileService upload;
 	
 	@GetMapping("") //cadena vacia para que se mapee a "productos" 
 	public String show(Model model){ // El objeto Model envía datos del backend a la vista
@@ -39,10 +46,28 @@ public class ProductoController {
 	
 	
 	@PostMapping("/save") //
-	public String save(Producto producto) {
+	public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
 		LOGGER.info("Este es el objeto producto {}", producto); //ese objeto lo muestra como toString
 		Usuario u= new Usuario(1, "", "", "", "", "", "", "");
 		producto.setUsuario(u);
+		
+		//imagen
+		if (producto.getId()==null) { //cuando se crea un producto
+			String nombreImagen= upload.saveImage(file);
+			producto.setImagen(nombreImagen);
+		
+		}else {
+			if(file.isEmpty()) { //editamos el producto pero no cambiamos la imagen
+				Producto p = new Producto();
+				p=productoService.get(producto.getId()).get();
+				producto.setImagen(p.getImagen());
+			}else { //cambia la imagen
+					
+				String nombreImagen= upload.saveImage(file);
+				producto.setImagen(nombreImagen);
+			}
+		}
+		
 		
 		productoService.save(producto);
 		return "redirect:/productos"; //es una peticion al controlador productos
