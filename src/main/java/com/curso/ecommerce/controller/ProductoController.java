@@ -1,6 +1,5 @@
 package com.curso.ecommerce.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -89,6 +88,8 @@ public class ProductoController {
 	//Envia los datos del formulario edit, guarda los datos en la bd y redirige a la lista de productos
 	@PostMapping("/update")
 	public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
+		
+		
 		
 		Producto p = new Producto();
 		p=productoService.get(producto.getId()).get();
