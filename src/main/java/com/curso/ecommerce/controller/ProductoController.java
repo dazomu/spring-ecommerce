@@ -1,5 +1,6 @@
 package com.curso.ecommerce.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class ProductoController {
 	@Autowired
 	private UploadFileService upload;
 	
+	
 	@GetMapping("") //cadena vacia para que se mapee a "productos" 
 	public String show(Model model){ // El objeto Model envía datos del backend a la vista
 		
@@ -48,6 +50,7 @@ public class ProductoController {
 	@PostMapping("/save") //
 	public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
 		LOGGER.info("Este es el objeto producto {}", producto); //ese objeto lo muestra como toString
+		
 		Usuario u= new Usuario(1, "", "", "", "", "", "", "");
 		producto.setUsuario(u);
 		
@@ -57,20 +60,12 @@ public class ProductoController {
 			producto.setImagen(nombreImagen);
 		
 		}else {
-			if(file.isEmpty()) { //editamos el producto pero no cambiamos la imagen
-				Producto p = new Producto();
-				p=productoService.get(producto.getId()).get();
-				producto.setImagen(p.getImagen());
-			}else { //cambia la imagen
-					
-				String nombreImagen= upload.saveImage(file);
-				producto.setImagen(nombreImagen);
-			}
+			
 		}
-		
 		
 		productoService.save(producto);
 		return "redirect:/productos"; //es una peticion al controlador productos
+	
 	}
 	
 	//te reenvia a la ruta para editar el producto en funcion a su id
@@ -83,17 +78,38 @@ public class ProductoController {
 		
 		//este get es de la clase Optional, es para extraer el valor guardado y q se almacene en la variable producto
 		producto = optionalProducto.get(); 
-		
 		LOGGER.info("Producto buscado: {}", producto);
 		
 		//mandar el objeto a la vista html, el model es como un objeto request
 		model.addAttribute("producto", producto);
+		
 		return "productos/edit";
 	}
 	
 	//Envia los datos del formulario edit, guarda los datos en la bd y redirige a la lista de productos
 	@PostMapping("/update")
-	public String update(Producto producto) {
+	public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
+		
+		Producto p = new Producto();
+		p=productoService.get(producto.getId()).get();
+		
+		if(file.isEmpty()) { //editamos el producto pero no cambiamos la imagen
+			
+			producto.setImagen(p.getImagen());
+			
+		}else { //cambia la imagen
+	
+			//eliminar cuando no sea la imagen por defecto
+			if (!p.getImagen().equals("default.jpg")) {
+				upload.deleteImage(p.getImagen());
+				
+			}
+			
+			String nombreImagen= upload.saveImage(file);
+			producto.setImagen(nombreImagen);
+		}
+		
+		producto.setUsuario(p.getUsuario());
 		productoService.update(producto);
 		return "redirect:/productos";
 	}
@@ -103,6 +119,17 @@ public class ProductoController {
 	
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable Integer id) {
+		
+		Producto p = new Producto();
+		p=productoService.get(id).get();
+		
+		//eliminar cuando no sea la imagen por defecto
+		if (!(p.getImagen().equals("default.jpg"))) {
+			upload.deleteImage(p.getImagen());
+			
+		}
+		
+		
 		productoService.delete(id);
 		return "redirect:/productos";
 	}

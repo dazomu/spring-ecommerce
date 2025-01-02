@@ -19,7 +19,7 @@ public class UploadFileService {
 	//La clase del parametro es el tipo file
 	public String saveImage(MultipartFile file) throws IOException {
 		
-		if(file.isEmpty()) {
+		if(!file.isEmpty()) {
 			//Pasar la imagen a bytes
 			byte [] bytes=file.getBytes();
 			//Asignar ruta y nombre del file
